@@ -158,10 +158,6 @@ def main_app():
         df = process_ebkph_file(file, convert_types)  # Passiere den "convert_types"-Parameter
         
         if df is not None:
-            # Zeige die verarbeiteten Daten an
-            st.write("Verarbeitete Daten:")
-            st.dataframe(df)
-
             # Button zum Herunterladen der verarbeiteten Datei als Excel
             excel_data = convert_df_to_excel(df)
             st.download_button(
@@ -170,6 +166,12 @@ def main_app():
                 file_name="verarbeitete_daten.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
+            # Zeige die verarbeiteten Daten an
+            st.write("Verarbeitete Daten:")
+            st.dataframe(df)
+
+
 
 
 # Hauptfunktion der App
