@@ -116,16 +116,8 @@ def main_app():
     uploaded_file = st.file_uploader("Lade deine eBKP-H-Datei hoch", type=["xlsx"])
 
     if uploaded_file:
-        # Temporäre Datei speichern
-        temp_path = f"temp/{uploaded_file.name}"
-        
-        with open(temp_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        
-        st.success(f"Datei {uploaded_file.name} erfolgreich hochgeladen und gespeichert.")
-        
-        # Datei verarbeiten
-        df = process_ebkph_file(temp_path)
+        # Datei direkt aus dem hochgeladenen Stream verarbeiten
+        df = process_ebkph_file(uploaded_file)
         
         # Zeige die verarbeiteten Daten an
         st.write("Verarbeitete Daten:")
