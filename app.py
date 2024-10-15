@@ -7,7 +7,7 @@ username_secrets = st.secrets["credentials"]["username"]
 password_secrets = st.secrets["credentials"]["password"]
 
 # Funktion zur Verarbeitung der eBKP-H Excel-Datei
-def process_ebkph_file(file):
+def process_ebkph_file(file, convert_types):
     
     """
     Diese Funktion liest die hochgeladene eBKP-H Excel-Datei, hebt die Header an und
@@ -45,59 +45,66 @@ def process_ebkph_file(file):
         progress_bar.progress(80)
         st.success("Schritt 4: Leere Zeilen erfolgreich entfernt")
 
-        # 5. Schritt: Datentypen konvertieren (hier mit einfachen Beispielen)
-        status_text.text("Konvertiere Datentypen...")
-        dtype_conversion = {
-            "Teilprojekt": str,
-            "Geschoss": str,
-            "eBKP-H": str,
-            "Ergänzung": str,
-            "Klassifizierung": str,
-            "Baustoffe": str,
-            "Bauteilname": str,
-            "Unter Terrain": 'boolean',
-            "Schichtdicke": float,
-            "Fläche": float,
-            "Länge": float,
-            "Volumen": float,
-            "Höhe": float,
-            "Breite": float,
-            "Menge": 'Int64',  # Null-fähige Ganzzahlen
-            "Erdverbunden": 'boolean',
-            "Spezialeigenschaft": str,
-            "Türtyp": str,
-            "Tortyp": str,
-            "Geländerart": str,
-            "Flügelanzahl": str,
-            "Überhöhe (über 3m)": 'boolean',
-            "Oberfläche oben": str,
-            "Oberfläche unten": str,
-            "Oberfläche Aussenseite": str,
-            "Oberfläche Innenseite": str,
-            "Stützenform": str,
-            "Stützenbreite": float,
-            "Stützentiefe": float,
-            "Stützenhöhe": float,
-            "Vorhangschiene": float,
-            "Sonnenschutz": 'boolean',
-            "Verschattung": str,
-            "Schallschutzanforderung": str,
-            "Anzahl der Trittstufen (gesamt)": float,
-            "Standard-Steigungshöhe": float,
-            "Standard-Auftrittstiefe": float,
-            "Standard-Treppenbreite": float,
-            "Bauteildicke": float
-        }
+        # 5. Schritt: Optional: Datentypen konvertieren oder alles als String behandeln
+        if convert_types:
+            status_text.text("Konvertiere Datentypen...")
+            dtype_conversion = {
+                "Teilprojekt": str,
+                "Geschoss": str,
+                "eBKP-H": str,
+                "Ergänzung": str,
+                "Klassifizierung": str,
+                "Baustoffe": str,
+                "Bauteilname": str,
+                "Unter Terrain": 'boolean',
+                "Schichtdicke": float,
+                "Fläche": float,
+                "Länge": float,
+                "Volumen": float,
+                "Höhe": float,
+                "Breite": float,
+                "Menge": 'Int64',  # Null-fähige Ganzzahlen
+                "Erdverbunden": 'boolean',
+                "Spezialeigenschaft": str,
+                "Türtyp": str,
+                "Tortyp": str,
+                "Geländerart": str,
+                "Flügelanzahl": str,
+                "Überhöhe (über 3m)": 'boolean',
+                "Oberfläche oben": str,
+                "Oberfläche unten": str,
+                "Oberfläche Aussenseite": str,
+                "Oberfläche Innenseite": str,
+                "Stützenform": str,
+                "Stützenbreite": float,
+                "Stützentiefe": float,
+                "Stützenhöhe": float,
+                "Vorhangschiene": float,
+                "Sonnenschutz": 'boolean',
+                "Verschattung": str,
+                "Schallschutzanforderung": str,
+                "Anzahl der Trittstufen (gesamt)": float,
+                "Standard-Steigungshöhe": float,
+                "Standard-Auftrittstiefe": float,
+                "Standard-Treppenbreite": float,
+                "Bauteildicke": float
+            }
 
-        # Konvertiere die Datentypen für die definierten Spalten
-        for column, dtype in dtype_conversion.items():
-            if column in df.columns:
-                try:
-                    df[column] = df[column].astype(dtype)
-                except ValueError:
-                    st.warning(f"Fehler bei der Konvertierung der Spalte {column}.")
+            # Konvertiere die Datentypen für die definierten Spalten
+            for column, dtype in dtype_conversion.items():
+                if column in df.columns:
+                    try:
+                        df[column] = df[column].astype(dtype)
+                    except ValueError:
+                        st.warning(f"Fehler bei der Konvertierung der Spalte {column}.")
+            st.success("Schritt 5: Datentypen erfolgreich konvertiert")
+        else:
+            # Falls die Konvertierung deaktiviert ist, werden alle Spalten als Strings behandelt
+            status_text.text("Alle Spalten werden als String behandelt...")
+            df = df.astype(str)
+            st.info("Schritt 5: Datentyp-Konvertierung deaktiviert, alle Spalten sind Strings")
+
         progress_bar.progress(100)
-        st.success("Schritt 5: Datentypen erfolgreich konvertiert")
 
         # Rückgabe des DataFrames
         return df
@@ -135,6 +142,9 @@ def main_app():
     
     # Datei-Upload-Funktion
     uploaded_file = st.file_uploader("Lade deine eBKP-H-Datei hoch", type=["xlsx"])
+
+    # Toggle für Datentyp-Konvertierung
+    convert_types = st.checkbox("Datentypen konvertieren (wenn deaktiviert, alles als String)", value=False)
 
     if uploaded_file:
         # Datei direkt aus dem hochgeladenen Stream verarbeiten
