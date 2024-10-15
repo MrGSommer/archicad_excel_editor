@@ -8,82 +8,103 @@ password_secrets = st.secrets["credentials"]["password"]
 
 # Funktion zur Verarbeitung der eBKP-H Excel-Datei
 def process_ebkph_file(file_path):
+    
     """
     Diese Funktion liest die hochgeladene eBKP-H Excel-Datei, hebt die Header an und
     konvertiert die Spalten zu den richtigen Datentypen.
     """
-    # Excel-Datei laden
-    xls = pd.ExcelFile(file_path)
-    df = pd.read_excel(xls, sheet_name='eBKP-H')
 
-    # Header erhöhen
-    df.columns = df.iloc[0]
-    df = df[2:]
+    # Fortschrittsbalken initialisieren
+    progress_bar = st.progress(0)
+    status_text = st.empty()
 
-    # Ersetze "<Nicht definiert>" und "---" durch leere Strings
-    df.replace({"<Nicht definiert>": "", "---": ""}, inplace=True)
+    try:
+        # 1. Schritt: Excel-Datei laden
+        status_text.text("Lade Excel-Datei...")
+        xls = pd.ExcelFile(file)
+        df = pd.read_excel(xls, sheet_name='eBKP-H')
+        progress_bar.progress(20)
+        st.success("Schritt 1: Excel-Datei erfolgreich geladen")
 
-    # Entferne leere Zeilen
-    df.dropna(how='all', inplace=True)
+        # 2. Schritt: Header um eine Zeile nach oben verschieben
+        status_text.text("Verschiebe Header...")
+        df.columns = df.iloc[0]  # Verschiebe nur eine Zeile
+        df = df[1:]  # Entferne die erste Zeile, die nun die Header ist
+        progress_bar.progress(40)
+        st.success("Schritt 2: Header erfolgreich verschoben")
 
-    # Definiere Datentyp-Konvertierungen für alle Spalten
-    dtype_conversion = {
-        "Teilprojekt": str,
-        "Geschoss": str,
-        "eBKP-H": str,
-        "Ergänzung": str,
-        "Klassifizierung": str,
-        "Baustoffe": str,
-        "Bauteilname": str,
-        "Unter Terrain": 'boolean',
-        "Schichtdicke": float,
-        "Fläche": float,
-        "Länge": float,
-        "Volumen": float,
-        "Höhe": float,
-        "Breite": float,
-        "Menge": 'Int64',  # Null-fähige Ganzzahlen
-        "Erdverbunden": 'boolean',
-        "Spezialeigenschaft": str,
-        "Türtyp": str,
-        "Tortyp": str,
-        "Geländerart": str,
-        "Flügelanzahl": str,
-        "Überhöhe (über 3m)": 'boolean',
-        "Oberfläche oben": str,
-        "Oberfläche unten": str,
-        "Oberfläche Aussenseite": str,
-        "Oberfläche Innenseite": str,
-        "Stützenform": str,
-        "Stützenbreite": float,
-        "Stützentiefe": float,
-        "Stützenhöhe": float,
-        "Vorhangschiene": float,
-        "Sonnenschutz": 'boolean',
-        "Verschattung": str,
-        "Schallschutzanforderung": str,
-        "Anzahl der Trittstufen (gesamt)": float,
-        "Standard-Steigungshöhe": float,
-        "Standard-Auftrittstiefe": float,
-        "Standard-Treppenbreite": float,
-        "Bauteildicke": float
-    }
+        # 3. Schritt: Ersetze "<Nicht definiert>" und "---" durch leere Strings
+        status_text.text('Ersetze "<Nicht definiert>" und "---"...')
+        df.replace({"<Nicht definiert>": "", "---": ""}, inplace=True)
+        progress_bar.progress(60)
+        st.success('Schritt 3: "<Nicht definiert>" und "---" erfolgreich ersetzt')
 
-    # Alle Spalten, die nicht im Typen-Dictionary sind, als String behandeln
-    for col in df.columns:
-        if col not in dtype_conversion:
-            dtype_conversion[col] = str
+        # 4. Schritt: Entferne leere Zeilen
+        status_text.text("Entferne leere Zeilen...")
+        df.dropna(how='all', inplace=True)
+        progress_bar.progress(80)
+        st.success("Schritt 4: Leere Zeilen erfolgreich entfernt")
 
-    # Konvertiere die Datentypen
-    for column, dtype in dtype_conversion.items():
-        try:
-            df[column] = df[column].astype(dtype)
-        except KeyError:
-            st.warning(f"Spalte {column} fehlt in der Datei und wurde als String verarbeitet.")
-        except ValueError:
-            st.warning(f"Fehler bei der Konvertierung der Spalte {column} zu {dtype}. Einige Werte könnten unpassend sein.")
+        # 5. Schritt: Datentypen konvertieren (hier mit einfachen Beispielen)
+        status_text.text("Konvertiere Datentypen...")
+        dtype_conversion = {
+            "Teilprojekt": str,
+            "Geschoss": str,
+            "eBKP-H": str,
+            "Ergänzung": str,
+            "Klassifizierung": str,
+            "Baustoffe": str,
+            "Bauteilname": str,
+            "Unter Terrain": 'boolean',
+            "Schichtdicke": float,
+            "Fläche": float,
+            "Länge": float,
+            "Volumen": float,
+            "Höhe": float,
+            "Breite": float,
+            "Menge": 'Int64',  # Null-fähige Ganzzahlen
+            "Erdverbunden": 'boolean',
+            "Spezialeigenschaft": str,
+            "Türtyp": str,
+            "Tortyp": str,
+            "Geländerart": str,
+            "Flügelanzahl": str,
+            "Überhöhe (über 3m)": 'boolean',
+            "Oberfläche oben": str,
+            "Oberfläche unten": str,
+            "Oberfläche Aussenseite": str,
+            "Oberfläche Innenseite": str,
+            "Stützenform": str,
+            "Stützenbreite": float,
+            "Stützentiefe": float,
+            "Stützenhöhe": float,
+            "Vorhangschiene": float,
+            "Sonnenschutz": 'boolean',
+            "Verschattung": str,
+            "Schallschutzanforderung": str,
+            "Anzahl der Trittstufen (gesamt)": float,
+            "Standard-Steigungshöhe": float,
+            "Standard-Auftrittstiefe": float,
+            "Standard-Treppenbreite": float,
+            "Bauteildicke": float
+        }
+        
+        # Konvertiere die Datentypen für die definierten Spalten
+        for column, dtype in dtype_conversion.items():
+            if column in df.columns:
+                try:
+                    df[column] = df[column].astype(dtype)
+                except ValueError:
+                    st.warning(f"Fehler bei der Konvertierung der Spalte {column}.")
+        progress_bar.progress(100)
+        st.success("Schritt 5: Datentypen erfolgreich konvertiert")
 
-    return df
+        # Rückgabe des DataFrames
+        return df
+
+    except Exception as e:
+        st.error(f"Fehler bei der Verarbeitung: {e}")
+        return None
 
 # Funktion für das Login-Formular
 def login():
