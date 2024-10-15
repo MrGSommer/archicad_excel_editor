@@ -7,7 +7,7 @@ username_secrets = st.secrets["credentials"]["username"]
 password_secrets = st.secrets["credentials"]["password"]
 
 # Funktion zur Verarbeitung der eBKP-H Excel-Datei
-def process_ebkph_file(file_path):
+def process_ebkph_file(file):
     
     """
     Diese Funktion liest die hochgeladene eBKP-H Excel-Datei, hebt die Header an und
@@ -88,7 +88,7 @@ def process_ebkph_file(file_path):
             "Standard-Treppenbreite": float,
             "Bauteildicke": float
         }
-        
+
         # Konvertiere die Datentypen für die definierten Spalten
         for column, dtype in dtype_conversion.items():
             if column in df.columns:
