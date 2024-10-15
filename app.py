@@ -1,10 +1,18 @@
 import streamlit as st
 import pandas as pd
-import os
+import io
 
 # Zugriff auf die Secrets
 username_secrets = st.secrets["credentials"]["username"]
 password_secrets = st.secrets["credentials"]["password"]
+
+# Funktion zum Konvertieren des DataFrames in Excel und Bereitstellen zum Download
+def convert_df_to_excel(df):
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False)
+    processed_data = output.getvalue()
+    return processed_data
 
 # Funktion zur Verarbeitung der eBKP-H Excel-Datei
 def process_ebkph_file(file, convert_types=True):
@@ -154,6 +162,16 @@ def main_app():
             st.write("Verarbeitete Daten:")
             st.dataframe(df)
 
+            # Button zum Herunterladen der verarbeiteten Datei als Excel
+            excel_data = convert_df_to_excel(df)
+            st.download_button(
+                label="Download verarbeitete Datei",
+                data=excel_data,
+                file_name="verarbeitete_daten.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+
 # Hauptfunktion der App
 def app():
     """
@@ -161,7 +179,7 @@ def app():
     Wenn der Benutzer nicht eingeloggt ist, wird das Login-Formular angezeigt.
     """
     st.set_page_config(layout="wide")  # Aktiviert den "Wide Mode"
-    
+
     if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
         login()
     else:
