@@ -8,7 +8,6 @@ password_secrets = st.secrets["credentials"]["password"]
 
 # Funktion zur Verarbeitung der eBKP-H Excel-Datei
 def process_ebkph_file(file, convert_types):
-    
     """
     Diese Funktion liest die hochgeladene eBKP-H Excel-Datei, hebt die Header an und
     konvertiert die Spalten zu den richtigen Datentypen.
@@ -148,11 +147,12 @@ def main_app():
 
     if file:
         # Datei direkt aus dem hochgeladenen Stream verarbeiten
-        df = process_ebkph_file(file)
+        df = process_ebkph_file(file, convert_types)  # Passiere den "convert_types"-Parameter
         
-        # Zeige die verarbeiteten Daten an
-        st.write("Verarbeitete Daten:")
-        st.dataframe(df)
+        if df is not None:
+            # Zeige die verarbeiteten Daten an
+            st.write("Verarbeitete Daten:")
+            st.dataframe(df)
 
 # Hauptfunktion der App
 def app():
