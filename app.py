@@ -17,7 +17,7 @@ def process_ebkph_file(file_path):
     df = pd.read_excel(xls, sheet_name='eBKP-H')
 
     # Header erhöhen
-    df.columns = df.iloc[1]
+    df.columns = df.iloc[0]
     df = df[2:]
 
     # Ersetze "<Nicht definiert>" und "---" durch leere Strings
