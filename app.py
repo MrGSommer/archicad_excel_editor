@@ -141,14 +141,14 @@ def main_app():
     st.write(f"Willkommen, {username_secrets}!")
     
     # Datei-Upload-Funktion
-    uploaded_file = st.file_uploader("Lade deine eBKP-H-Datei hoch", type=["xlsx"])
+    file = st.file_uploader("Lade deine eBKP-H-Datei hoch", type=["xlsx"])
 
     # Toggle für Datentyp-Konvertierung
     convert_types = st.checkbox("Datentypen konvertieren (wenn deaktiviert, alles als String)", value=False)
 
-    if uploaded_file:
+    if file:
         # Datei direkt aus dem hochgeladenen Stream verarbeiten
-        df = process_ebkph_file(uploaded_file)
+        df = process_ebkph_file(file)
         
         # Zeige die verarbeiteten Daten an
         st.write("Verarbeitete Daten:")
