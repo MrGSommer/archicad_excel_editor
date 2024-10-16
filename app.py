@@ -192,7 +192,7 @@ def login():
     Wenn die Anmeldedaten korrekt sind, wird der Benutzer als eingeloggt markiert.
     """
     st.session_state["logged_in"] = False
-
+    
     st.write("Bitte einloggen")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
@@ -203,6 +203,12 @@ def login():
             st.session_state["logged_in"] = True
         else:
             st.error("Falscher Username oder Passwort. Wenden Sie sich an Ihren Systemadministrator")
+
+# Layout mit zwei Spalten
+col1, col2 = st.columns([1, 1])  # Optional kannst du die Breite der Spalten anpassen, z.B. [1, 2]
+
+with col1:
+    login()  # Hier platzierst du das Login-Formular in der ersten Spalte
 
 # Hauptanwendung mit Tabs und zusammengefasstem Code
 def main_app():
