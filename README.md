@@ -1,4 +1,4 @@
-# eBKP-H Excel Verarbeitungs-App
+# ArchiCAD Excelliste Verarbeitungs-App
 
 Diese Streamlit-App ermöglicht das sichere Hochladen und Verarbeiten von eBKP-H Excel-Dateien. Die App enthält ein Login-System, das durch Streamlit Secrets geschützt wird. Nach erfolgreichem Login kann eine Excel-Datei hochgeladen werden, die dann verarbeitet und die Inhalte mit den korrekten Datentypen in der App angezeigt werden.
 
