@@ -49,11 +49,6 @@ def process_ebkph_file(file, convert_types=True):
             st.error("Spalten 'Teilprojekt' und 'Geschoss' wurden in den ersten 10 Zeilen nicht gefunden.")
             return None
         
-        # Überprüfen, ob die Header-Zeile tatsächlich existiert (sicherstellen, dass header_index im gültigen Bereich liegt)
-        if header_index >= len(df):
-            st.error(f"Die gefundene Headerzeile liegt außerhalb des gültigen Bereichs (Index: {header_index}).")
-            return None
-        
         # Header festlegen und Zeilen oberhalb entfernen
         df.columns = df.iloc[header_index]  # Setze die gefundene Zeile als Header
         df = df[header_index + 1:].reset_index(drop=True)  # Entferne Zeilen oberhalb
@@ -62,10 +57,16 @@ def process_ebkph_file(file, convert_types=True):
 
         # 3. Schritt: Überprüfen auf doppelte Headerzeilen ausserhalb der obersten 10 Zeilen
         status_text.text("Überprüfe auf doppelte Headerzeilen ausserhalb der ersten 10 Zeilen...")
-        for i in range(10, len(df)):  # Überprüfe alle Zeilen nach der 10. Zeile
-            if "Teilprojekt" in df.iloc[i].values and "Geschoss" in df.iloc[i].values:
-                df.drop(i, inplace=True)  # Doppelte Headerzeile entfernen
+        rows_to_drop = []  # Liste zum Speichern der zu löschenden Zeilen
 
+        # Überprüfen der Zeilen nach der 10. Zeile
+        for i in range(10, len(df)):
+            # Überprüfen, ob in Spalte 1 "Teilprojekt" und in Spalte 2 "Geschoss" steht
+            if df.iloc[i, 0] == "Teilprojekt" and df.iloc[i, 1] == "Geschoss":
+                rows_to_drop.append(i)  # Markiere die Zeile zum Löschen
+
+        # Lösche die markierten Zeilen
+        df.drop(rows_to_drop, inplace=True)
         df.reset_index(drop=True, inplace=True)  # Index neu setzen
         progress_bar.progress(60)
         st.success("Schritt 3: Doppelte Header ausserhalb der ersten 10 Zeilen erfolgreich entfernt")
@@ -143,6 +144,7 @@ def process_ebkph_file(file, convert_types=True):
     except Exception as e:
         st.error(f"Fehler bei der Verarbeitung: {e}")
         return None
+
 
 
 
