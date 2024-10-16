@@ -126,7 +126,11 @@ def process_ebkph_file(file, convert_types=True):
             for column, dtype in dtype_conversion.items():
                 if column in df.columns:
                     try:
-                        df[column] = df[column].astype(dtype)
+                        if dtype == 'boolean':
+                            # Versuche explizit, boolesche Werte zu konvertieren
+                            df[column] = df[column].apply(lambda x: bool(x) if pd.notnull(x) and str(x).lower() in ['true', 'false', '1', '0'] else None)
+                        else:
+                            df[column] = df[column].astype(dtype)
                     except ValueError:
                         st.warning(f"Fehler bei der Konvertierung der Spalte {column}.")
             
