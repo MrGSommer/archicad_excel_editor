@@ -129,12 +129,15 @@ def process_ebkph_file(file, convert_types=True):
                         df[column] = df[column].astype(dtype)
                     except ValueError:
                         st.warning(f"Fehler bei der Konvertierung der Spalte {column}.")
-            st.success("Schritt 5: Datentypen erfolgreich konvertiert")
+            
+            # Ersetze alle NaN-Werte durch leere Strings
+            df.fillna("", inplace=True)
+            st.success("Schritt 5: Datentypen erfolgreich konvertiert und NaN-Werte durch leere Zellen ersetzt")
         else:
             # Falls die Konvertierung deaktiviert ist, werden alle Spalten als Strings behandelt
             status_text.text("Alle Spalten werden als String behandelt...")
-            df = df.astype(str)
-            st.info("Schritt 5: Datentyp-Konvertierung deaktiviert, alle Spalten sind Strings")
+            df = df.astype(str).fillna("")  # Ersetze NaN-Werte durch leere Strings
+            st.info("Schritt 5: Datentyp-Konvertierung deaktiviert, alle Spalten sind Strings und NaN-Werte entfernt")
 
         progress_bar.progress(100)
 
