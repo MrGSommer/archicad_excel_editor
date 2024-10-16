@@ -22,5 +22,5 @@ Stelle sicher, dass die folgenden Voraussetzungen erfüllt sind, um die App ausz
 1. **Repository klonen**:
 
    ```bash
-   git clone https://github.com/yourusername/ebkph-app.git
-   cd ebkph-app
+   gh repo clone MrGSommer/archicad_excel_editor
+   cd archicad_excel_editor
