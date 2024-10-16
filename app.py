@@ -217,7 +217,7 @@ def main_app():
 
     # Tab für SIA416 Datei-Verarbeitung
     with tab2:
-        handle_excel_file_processing(tab_title="SIA416", sheet_name="SIA416", header_keys=["eBKP-H", "SIA416"])
+        handle_excel_file_processing(tab_title="SIA416", sheet_name="SIA416", header_keys=["Teilprojekt", "Geschoss"])
 
 # Hauptfunktion der App
 def app():
