@@ -28,7 +28,7 @@ def process_ebkph_file(file, convert_types=True):
         # 1. Schritt: Excel-Datei laden
         status_text.text("Lade Excel-Datei...")
         xls = pd.ExcelFile(file)
-        df = pd.read_excel(xls, sheet_name='eBKP-H', header=None)  # Keine Header angeben
+        df = pd.read_excel(xls, sheet_name='eBKP-H', header=None, keep_default_na=False)  # Keine Header angeben und NaN durch leere Zellen ersetzen
         progress_bar.progress(20)
         st.success("Schritt 1: Excel-Datei erfolgreich geladen")
 
