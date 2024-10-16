@@ -205,11 +205,7 @@ def login():
         else:
             st.error("Falscher Username oder Passwort. Wenden Sie sich an Ihren Systemadministrator")
 
-# Layout mit zwei Spalten
-col1, col2 = st.columns([1, 1])  # Optional kannst du die Breite der Spalten anpassen, z.B. [1, 2]
 
-with col1:
-    login()  # Hier platzierst du das Login-Formular in der ersten Spalte
 
 # Hauptanwendung mit Tabs und zusammengefasstem Code
 def main_app():
@@ -233,8 +229,13 @@ def app():
     Wenn der Benutzer nicht eingeloggt ist, wird das Login-Formular angezeigt.
     """
     st.set_page_config(layout="wide")  # Aktiviert den "Wide Mode"
+    
+    # Layout mit zwei Spalten
+    col1, col2 = st.columns([1, 1])  # Optional kannst du die Breite der Spalten anpassen, z.B. [1, 2]
+
     if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-        login()
+        with col1:
+            login()
     else:
         main_app()
 
