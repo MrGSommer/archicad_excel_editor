@@ -32,16 +32,26 @@ def process_ebkph_file(file, convert_types=True):
         progress_bar.progress(20)
         st.success("Schritt 1: Excel-Datei erfolgreich geladen")
 
+        # Überprüfen, ob die Datei genügend Zeilen hat
+        if len(df) < 10:
+            st.error("Die Excel-Datei enthält weniger als 10 Zeilen. Überprüfen Sie die Datei.")
+            return None
+
         # 2. Schritt: Headerzeile identifizieren
         status_text.text("Suche nach der Headerzeile...")
         header_index = None
-        for i in range(6):  # Nur die ersten 6 Zeilen durchsuchen
+        for i in range(10):  # Nur die ersten 10 Zeilen durchsuchen
             if "Teilprojekt" in df.iloc[i].values and "Geschoss" in df.iloc[i].values:
                 header_index = i
                 break
 
         if header_index is None:
-            st.error("Spalten 'Teilprojekt' und 'Geschoss' wurden in den ersten 6 Zeilen nicht gefunden.")
+            st.error("Spalten 'Teilprojekt' und 'Geschoss' wurden in den ersten 10 Zeilen nicht gefunden.")
+            return None
+        
+        # Überprüfen, ob die Header-Zeile tatsächlich existiert (sicherstellen, dass header_index im gültigen Bereich liegt)
+        if header_index >= len(df):
+            st.error(f"Die gefundene Headerzeile liegt außerhalb des gültigen Bereichs (Index: {header_index}).")
             return None
         
         # Header festlegen und Zeilen oberhalb entfernen
@@ -50,15 +60,15 @@ def process_ebkph_file(file, convert_types=True):
         progress_bar.progress(40)
         st.success("Schritt 2: Header erfolgreich verschoben")
 
-        # 3. Schritt: Überprüfen auf doppelte Headerzeilen ausserhalb der obersten 7 Zeilen
-        status_text.text("Überprüfe auf doppelte Headerzeilen ausserhalb der ersten 7 Zeilen...")
-        for i in range(7, len(df)):  # Überprüfe alle Zeilen nach der 7. Zeile
+        # 3. Schritt: Überprüfen auf doppelte Headerzeilen ausserhalb der obersten 10 Zeilen
+        status_text.text("Überprüfe auf doppelte Headerzeilen ausserhalb der ersten 10 Zeilen...")
+        for i in range(10, len(df)):  # Überprüfe alle Zeilen nach der 10. Zeile
             if "Teilprojekt" in df.iloc[i].values and "Geschoss" in df.iloc[i].values:
                 df.drop(i, inplace=True)  # Doppelte Headerzeile entfernen
 
         df.reset_index(drop=True, inplace=True)  # Index neu setzen
         progress_bar.progress(60)
-        st.success("Schritt 3: Doppelte Header ausserhalb der ersten 7 Zeilen erfolgreich entfernt")
+        st.success("Schritt 3: Doppelte Header ausserhalb der ersten 10 Zeilen erfolgreich entfernt")
 
         # 4. Schritt: Ersetze "<Nicht definiert>" und "---" durch leere Strings
         status_text.text('Ersetze "<Nicht definiert>" und "---"...')
@@ -133,6 +143,7 @@ def process_ebkph_file(file, convert_types=True):
     except Exception as e:
         st.error(f"Fehler bei der Verarbeitung: {e}")
         return None
+
 
 
 # Funktion für das Login-Formular
