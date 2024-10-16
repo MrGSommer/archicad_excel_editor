@@ -17,10 +17,9 @@ def convert_df_to_excel(df):
 # Funktion zur Verarbeitung der eBKP-H Excel-Datei
 def process_ebkph_file(file, convert_types=True):
     """
-    Diese Funktion liest die hochgeladene eBKP-H Excel-Datei, hebt die Header an und
-    konvertiert die Spalten zu den richtigen Datentypen.
+    Diese Funktion liest die hochgeladene eBKP-H Excel-Datei, hebt die Header an,
+    und prüft auf doppelte Headerzeilen im gesamten Dokument ausserhalb der ersten 10 Zeilen.
     """
-
     # Fortschrittsbalken initialisieren
     progress_bar = st.progress(0)
     status_text = st.empty()
@@ -29,28 +28,43 @@ def process_ebkph_file(file, convert_types=True):
         # 1. Schritt: Excel-Datei laden
         status_text.text("Lade Excel-Datei...")
         xls = pd.ExcelFile(file)
-        df = pd.read_excel(xls, sheet_name='eBKP-H')
+        df = pd.read_excel(xls, sheet_name='eBKP-H', header=None)  # Keine Header angeben
         progress_bar.progress(20)
         st.success("Schritt 1: Excel-Datei erfolgreich geladen")
 
-        # 2. Schritt: Header um eine Zeile nach oben verschieben
-        status_text.text("Verschiebe Header...")
-        df.columns = df.iloc[0]  # Verschiebe nur eine Zeile
-        df = df[1:]  # Entferne die erste Zeile, die nun die Header ist
+        # 2. Schritt: Headerzeile identifizieren
+        status_text.text("Suche nach der Headerzeile...")
+        header_index = None
+        for i in range(6):  # Nur die ersten 6 Zeilen durchsuchen
+            if "Teilprojekt" in df.iloc[i].values and "Geschoss" in df.iloc[i].values:
+                header_index = i
+                break
+
+        if header_index is None:
+            st.error("Spalten 'Teilprojekt' und 'Geschoss' wurden in den ersten 6 Zeilen nicht gefunden.")
+            return None
+        
+        # Header festlegen und Zeilen oberhalb entfernen
+        df.columns = df.iloc[header_index]  # Setze die gefundene Zeile als Header
+        df = df[header_index + 1:].reset_index(drop=True)  # Entferne Zeilen oberhalb
         progress_bar.progress(40)
         st.success("Schritt 2: Header erfolgreich verschoben")
 
-        # 3. Schritt: Ersetze "<Nicht definiert>" und "---" durch leere Strings
+        # 3. Schritt: Überprüfen auf doppelte Headerzeilen ausserhalb der obersten 7 Zeilen
+        status_text.text("Überprüfe auf doppelte Headerzeilen ausserhalb der ersten 7 Zeilen...")
+        for i in range(7, len(df)):  # Überprüfe alle Zeilen nach der 7. Zeile
+            if "Teilprojekt" in df.iloc[i].values and "Geschoss" in df.iloc[i].values:
+                df.drop(i, inplace=True)  # Doppelte Headerzeile entfernen
+
+        df.reset_index(drop=True, inplace=True)  # Index neu setzen
+        progress_bar.progress(60)
+        st.success("Schritt 3: Doppelte Header ausserhalb der ersten 7 Zeilen erfolgreich entfernt")
+
+        # 4. Schritt: Ersetze "<Nicht definiert>" und "---" durch leere Strings
         status_text.text('Ersetze "<Nicht definiert>" und "---"...')
         df.replace({"<Nicht definiert>": "", "---": ""}, inplace=True)
-        progress_bar.progress(60)
-        st.success('Schritt 3: "<Nicht definiert>" und "---" erfolgreich ersetzt')
-
-        # 4. Schritt: Entferne leere Zeilen
-        status_text.text("Entferne leere Zeilen...")
-        df.dropna(how='all', inplace=True)
         progress_bar.progress(80)
-        st.success("Schritt 4: Leere Zeilen erfolgreich entfernt")
+        st.success('Schritt 4: "<Nicht definiert>" und "---" erfolgreich ersetzt')
 
         # 5. Schritt: Optional: Datentypen konvertieren oder alles als String behandeln
         if convert_types:
@@ -119,6 +133,7 @@ def process_ebkph_file(file, convert_types=True):
     except Exception as e:
         st.error(f"Fehler bei der Verarbeitung: {e}")
         return None
+
 
 # Funktion für das Login-Formular
 def login():
