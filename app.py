@@ -185,15 +185,20 @@ def main_app():
         # Datei direkt aus dem hochgeladenen Stream verarbeiten
         df = process_ebkph_file(file, convert_types)  # Passiere den "convert_types"-Parameter
         
+        # Button zum Herunterladen der verarbeiteten Datei als Excel
         if df is not None:
-            # Button zum Herunterladen der verarbeiteten Datei als Excel
             excel_data = convert_df_to_excel(df)
+            # Ursprünglichen Dateinamen mit der Ergänzung "_gesäubert" verwenden
+            original_filename = file.name.rsplit('.', 1)[0]  # Entfernt die Dateiendung
+            cleaned_filename = f"{original_filename}_gesäubert.xlsx"
+            
             st.download_button(
                 label="Download verarbeitete Datei",
                 data=excel_data,
-                file_name="verarbeitete_daten.xlsx",
+                file_name=cleaned_filename,  # Verwendet den modifizierten Dateinamen
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
+
 
             # Zeige die verarbeiteten Daten an
             st.write("Verarbeitete Daten:")
