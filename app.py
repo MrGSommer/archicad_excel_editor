@@ -186,7 +186,7 @@ def main_app():
     file = st.file_uploader("Lade deine eBKP-H-Datei hoch", type=["xlsx"])
 
     # Toggle für Datentyp-Konvertierung
-    convert_types = st.checkbox("Datentypen konvertieren (wenn deaktiviert, alles als String)", value=False)
+    convert_types = st.checkbox("Datentypen konvertieren (wenn deaktiviert, alles als String). Normale Excel nie konvertieren", value=False)
 
     if file:
         # Datei direkt aus dem hochgeladenen Stream verarbeiten
