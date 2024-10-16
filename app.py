@@ -191,6 +191,7 @@ def login():
     Zeigt das Login-Formular an und überprüft den eingegebenen Benutzernamen und das Passwort.
     Wenn die Anmeldedaten korrekt sind, wird der Benutzer als eingeloggt markiert.
     """
+    st.set_page_config(layout="wide")  # Aktiviert den "Wide Mode"
     st.session_state["logged_in"] = False
     
     st.write("Bitte einloggen")
@@ -212,6 +213,7 @@ with col1:
 
 # Hauptanwendung mit Tabs und zusammengefasstem Code
 def main_app():
+    st.set_page_config(layout="wide")  # Aktiviert den "Wide Mode"
     st.write(f"Willkommen, {username_secrets}!")
 
     # Verwende Tabs für eine bessere Übersicht
@@ -232,7 +234,6 @@ def app():
     Wenn der Benutzer nicht eingeloggt ist, wird das Login-Formular angezeigt.
     """
     st.set_page_config(layout="wide")  # Aktiviert den "Wide Mode"
-
     if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
         login()
     else:
